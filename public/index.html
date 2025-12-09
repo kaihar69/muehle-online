@@ -27,32 +27,33 @@
             user-select: none;
             touch-action: manipulation; 
             overflow-x: hidden;
-            padding: 20px 0; /* Etwas Luft oben und unten */
+            padding: 20px 0;
         }
 
-        /* HEADER BEREICH (Geändert: Kein position:absolute mehr) */
+        /* HEADER */
         #header-area {
             text-align: center;
             width: 100%;
             pointer-events: none; 
-            margin-bottom: 20px; /* Schafft Platz zum Brett */
+            margin-bottom: 20px;
             position: relative;
-            z-index: 50; /* Sicherstellen, dass Text immer vorne ist */
+            z-index: 50;
         }
         h1 { margin: 0; font-size: 1.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); pointer-events: auto;}
         #my-role { font-size: 0.9rem; color: #bdc3c7; margin-bottom: 5px;}
         #status { font-size: 1.1rem; font-weight: bold; color: var(--highlight); height: 1.2em; text-shadow: 1px 1px 2px black;}
 
-        /* HAUPT LAYOUT (GRID / FLEX) */
+        /* HAUPT LAYOUT */
         #main-stage {
             display: flex;
             align-items: center;
             justify-content: center;
             gap: 40px;
-            /* margin-top entfernt, da Header jetzt Platz braucht */
+            width: 100%;
+            max-width: 900px;
         }
 
-        /* Das Brett */
+        /* DAS BRETT (Der Fix ist hier integriert) */
         #board {
             width: 500px;
             height: 500px;
@@ -61,14 +62,18 @@
             border: 15px solid var(--border-color);
             border-radius: 5px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
+            
+            /* WICHTIG: Verhindert das Quetschen */
             flex-shrink: 0; 
+            aspect-ratio: 1 / 1; 
+            
             z-index: 10;
         }
 
         svg { width: 100%; height: 100%; position: absolute; top: 0; left: 0; }
         line, rect { stroke: #000; stroke-width: 4; fill: none; }
 
-        /* Die Seiten-Panels (Links und Rechts) */
+        /* PANELS */
         .side-panel {
             width: 140px;
             background: rgba(0, 0, 0, 0.3);
@@ -111,7 +116,7 @@
         .supply-stone.white { background: radial-gradient(circle at 30% 30%, #fff, #bbb); border: 1px solid #888; }
         .supply-stone.black { background: radial-gradient(circle at 30% 30%, #444, #000); border: 1px solid #000; }
 
-        /* SPIELSTEINE & SPOTS */
+        /* STEINE & SPOTS */
         .spot {
             width: 30px;
             height: 30px;
@@ -145,7 +150,7 @@
         body.game-over #status { color: #2ecc71; font-size: 1.5rem; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* BUTTONS & FOOTER */
+        /* FOOTER */
         #footer-area {
             margin-top: 20px;
             text-align: center;
@@ -192,7 +197,6 @@
             width: 85%;
             max-width: 350px;
         }
-
         .box h2 { margin-top: 0; color: #f1c40f; font-size: 1.5rem;}
         
         input[type="text"] {
@@ -208,37 +212,35 @@
             font-weight: bold;
         }
         input:focus { outline: 2px solid #f1c40f; }
-
         .btn { padding: 12px 25px; font-size: 1.1rem; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; background: #2ecc71; color: white; margin-top: 5px; width: 100%; transition: transform 0.1s;}
         .btn:active { transform: scale(0.98); }
         .btn-restart { background: #e74c3c; width: 200px; margin-bottom: 15px;}
 
-        /* --- MOBILE LAYOUT (WICHTIG) --- */
+        /* --- MOBILE LAYOUT OPTIMIERUNG --- */
         @media (max-width: 900px) {
-            body { justify-content: flex-start; padding-top: 10px; } /* Auf Mobile lieber oben anfangen */
+            body { justify-content: flex-start; padding-top: 10px; }
             #header-area { margin-bottom: 10px; }
 
-            /* Layout umschalten auf vertikal */
             #main-stage {
                 flex-direction: column;
                 gap: 15px;
             }
 
-            /* Header kompakter */
             h1 { font-size: 1.2rem; }
             #status { font-size: 1rem; }
 
-            /* Brett responsive */
             #board { 
+                /* Hier ist der Fix für das Quadrat: */
                 width: 94vw; 
-                height: 94vw; 
                 max-width: 450px; 
-                max-height: 450px; 
+                /* aspect-ratio erzwingt Quadrat */
+                aspect-ratio: 1 / 1; 
+                height: auto; 
+                
                 border-width: 10px; 
                 order: 1;
             }
             
-            /* Panels unter das Brett nebeneinander */
             .side-panel {
                 order: 2;
                 width: 40%;
@@ -252,15 +254,12 @@
                 flex-wrap: wrap;
                 align-items: flex-start;
             }
-            #board { width: 100%; flex-basis: 100%; max-width: 94vw; height: 94vw;}
-
+            #board { flex-basis: 100%; } /* Brett nimmt volle Breite */
             .side-panel { width: 42%; flex-grow: 1; max-width: 200px; }
 
-            /* Steine angepasst */
             .stone { width: 8.5vw; height: 8.5vw; max-width: 38px; max-height: 38px; }
             .spot { width: 8vw; height: 8vw; max-width: 35px; max-height: 35px; }
 
-            /* Buttons */
             .btn-restart { width: 90%; }
         }
     </style>
@@ -287,7 +286,7 @@
     <div id="header-area">
         <h1>Mühle Online</h1>
         <div id="my-role">Nicht verbunden</div>
-        <div id="status">Warte ...</div>
+        <div id="status">Lade...</div>
     </div>
     
     <div id="main-stage">
@@ -408,23 +407,16 @@
         socket.on('updatePlayerNames', (players) => {
             nameWhite.innerText = "Weiß: -";
             nameBlack.innerText = "Schwarz: -";
-            
             players.forEach(p => {
                 if (p.color === 'white') nameWhite.innerText = p.name;
                 if (p.color === 'black') nameBlack.innerText = p.name;
             });
-
-            if (players.length === 2 && gameState === 'waiting') {
-                startGameLocal('white'); 
-            }
+            if (players.length === 2 && gameState === 'waiting') startGameLocal('white'); 
         });
 
         socket.on('updateHallOfFame', (list) => {
             hofList.innerHTML = '';
-            if (list.length === 0) {
-                hofList.innerHTML = '<li><span class="hof-name">Noch keine Spiele</span></li>';
-                return;
-            }
+            if (list.length === 0) { hofList.innerHTML = '<li><span class="hof-name">Noch keine Spiele</span></li>'; return; }
             list.forEach(entry => {
                 const li = document.createElement('li');
                 li.innerHTML = `<span class="hof-name">${entry.name}</span> <span class="hof-time">${entry.time}</span>`;
@@ -432,10 +424,7 @@
             });
         });
 
-        socket.on('resetGame', (startColor) => {
-            resetLocalBoard();
-            startGameLocal(startColor);
-        });
+        socket.on('resetGame', (startColor) => { resetLocalBoard(); startGameLocal(startColor); });
 
         socket.on('updateBoard', (data) => {
             if (data.type === 'place') performPlaceStone(data.index, data.player);
@@ -466,15 +455,10 @@
         }
 
         function fillSupply() {
-            supplyWhite.innerHTML = '';
-            supplyBlack.innerHTML = '';
+            supplyWhite.innerHTML = ''; supplyBlack.innerHTML = '';
             for(let i=0; i<9; i++) {
-                const sW = document.createElement('div');
-                sW.classList.add('supply-stone', 'white');
-                supplyWhite.appendChild(sW);
-                const sB = document.createElement('div');
-                sB.classList.add('supply-stone', 'black');
-                supplyBlack.appendChild(sB);
+                const sW = document.createElement('div'); sW.classList.add('supply-stone', 'white'); supplyWhite.appendChild(sW);
+                const sB = document.createElement('div'); sB.classList.add('supply-stone', 'black'); supplyBlack.appendChild(sB);
             }
         }
 
@@ -494,22 +478,14 @@
             updateUI();
         }
 
-        function emitGameStart() {
-            socket.emit('gameStart', 'white');
-        }
+        function emitGameStart() { socket.emit('gameStart', 'white'); }
 
         function updateUI() {
-            if (currentPlayer === 'white') {
-                panelWhite.classList.add('active');
-                panelBlack.classList.remove('active');
-            } else {
-                panelWhite.classList.remove('active');
-                panelBlack.classList.add('active');
-            }
+            if (currentPlayer === 'white') { panelWhite.classList.add('active'); panelBlack.classList.remove('active'); } 
+            else { panelWhite.classList.remove('active'); panelBlack.classList.add('active'); }
 
             const allPlaced = piecesPlaced.white === 9 && piecesPlaced.black === 9;
             const stonesCount = countLiveStones(currentPlayer);
-            
             let phaseText = 'Setzen';
             if (allPlaced) {
                 if (stonesCount === 3) phaseText = 'SPRINGEN!';
@@ -535,38 +511,25 @@
         function handleSpotClick(e) {
             if (gameState === 'waiting' || gameState === 'game_over') return;
             if (myColor !== currentPlayer) return;
-
             const target = e.target.closest('.spot');
             if(!target) return;
             const index = parseInt(target.dataset.index);
 
-            if (gameState === 'removing') {
-                validateAndSendRemove(index);
-                return;
-            }
-
+            if (gameState === 'removing') { validateAndSendRemove(index); return; }
             if (gameState === 'placing') {
                 if (boardState[index] !== null) return; 
                 socket.emit('playerAction', { type: 'place', index: index, player: myColor });
-            }
-
-            else if (gameState === 'moving') {
-                handleLocalMoveInput(index);
-            }
+            } else if (gameState === 'moving') { handleLocalMoveInput(index); }
         }
 
         function handleLocalMoveInput(index) {
             const clickedContent = boardState[index];
-            if (clickedContent === myColor) {
-                selectStone(index);
-            } 
+            if (clickedContent === myColor) { selectStone(index); } 
             else if (clickedContent === null && selectedStoneIndex !== null) {
                 const currentStoneCount = countLiveStones(myColor);
                 let validMove = false;
-
                 if (currentStoneCount === 3) validMove = true; 
                 else if (adjacencyMap[selectedStoneIndex].includes(index)) validMove = true; 
-
                 if (validMove) {
                     socket.emit('playerAction', { type: 'move', fromIndex: selectedStoneIndex, index: index, player: myColor });
                     const oldSelection = document.querySelector('.stone.selected');
@@ -580,7 +543,6 @@
             const content = boardState[index];
             const opponent = myColor === 'white' ? 'black' : 'white';
             if (content !== opponent) return alert("Gegnerstein wählen!");
-
             if (checkForMill(index, opponent)) {
                 const allOpponentIndices = [];
                 boardState.forEach((val, idx) => { if (val === opponent) allOpponentIndices.push(idx); });
@@ -594,10 +556,8 @@
             boardState[index] = player;
             piecesPlaced[player]++;
             createStoneElement(index, player);
-            
             const supplyContainer = player === 'white' ? supplyWhite : supplyBlack;
             if (supplyContainer.lastElementChild) supplyContainer.removeChild(supplyContainer.lastElementChild);
-            
             checkAfterAction(index, player);
         }
 
@@ -626,7 +586,6 @@
                 if(stone.style.top === spot.style.top && stone.style.left === spot.style.left) stone.remove();
             });
             document.body.classList.remove('removing');
-            
             const whiteDone = piecesPlaced.white === maxPieces;
             const blackDone = piecesPlaced.black === maxPieces;
             gameState = (whiteDone && blackDone) ? 'moving' : 'placing';
@@ -644,9 +603,7 @@
                     statusElement.innerText = "Gegner hat Mühle...";
                     statusElement.style.color = "#e74c3c";
                 }
-            } else {
-                switchPlayer();
-            }
+            } else { switchPlayer(); }
         }
 
         function selectStone(index) {
@@ -695,23 +652,16 @@
             gameState = 'game_over';
             statusElement.innerText = "SIEGER: " + message;
             document.body.classList.add('game-over');
-            
-            if (myColor === winnerColor) {
-                socket.emit('reportWin', winnerColor);
-            }
-            
+            if (myColor === winnerColor) socket.emit('reportWin', winnerColor);
             restartBtn.style.display = 'block';
         }
 
         function switchPlayer() {
             const allPlaced = piecesPlaced.white === 9 && piecesPlaced.black === 9;
             if (allPlaced && gameState !== 'removing') gameState = 'moving';
-
             currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
             const opponentGerman = currentPlayer === 'white' ? 'Schwarz' : 'Weiß';
-
             updateUI(); 
-
             if (gameState === 'moving') {
                 const stonesCount = countLiveStones(currentPlayer);
                 if (stonesCount < 3) return endGame(`${opponentGerman} (Zu wenig Steine)`, currentPlayer === 'white' ? 'black' : 'white');

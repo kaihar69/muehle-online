@@ -27,18 +27,20 @@
             user-select: none;
             touch-action: manipulation; 
             overflow-x: hidden;
+            padding: 20px 0; /* Etwas Luft oben und unten */
         }
 
-        /* HEADER BEREICH */
+        /* HEADER BEREICH (Geändert: Kein position:absolute mehr) */
         #header-area {
-            position: absolute;
-            top: 10px;
             text-align: center;
             width: 100%;
-            pointer-events: none; /* Klicks gehen durch */
+            pointer-events: none; 
+            margin-bottom: 20px; /* Schafft Platz zum Brett */
+            position: relative;
+            z-index: 50; /* Sicherstellen, dass Text immer vorne ist */
         }
         h1 { margin: 0; font-size: 1.5rem; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); pointer-events: auto;}
-        #my-role { font-size: 0.9rem; color: #bdc3c7; margin-bottom: 2px;}
+        #my-role { font-size: 0.9rem; color: #bdc3c7; margin-bottom: 5px;}
         #status { font-size: 1.1rem; font-weight: bold; color: var(--highlight); height: 1.2em; text-shadow: 1px 1px 2px black;}
 
         /* HAUPT LAYOUT (GRID / FLEX) */
@@ -46,8 +48,8 @@
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 40px; /* Abstand zwischen Brett und Panels */
-            margin-top: 40px; /* Platz für Header */
+            gap: 40px;
+            /* margin-top entfernt, da Header jetzt Platz braucht */
         }
 
         /* Das Brett */
@@ -213,11 +215,13 @@
 
         /* --- MOBILE LAYOUT (WICHTIG) --- */
         @media (max-width: 900px) {
+            body { justify-content: flex-start; padding-top: 10px; } /* Auf Mobile lieber oben anfangen */
+            #header-area { margin-bottom: 10px; }
+
             /* Layout umschalten auf vertikal */
             #main-stage {
                 flex-direction: column;
                 gap: 15px;
-                margin-top: 60px; /* Mehr Platz für Header */
             }
 
             /* Header kompakter */
@@ -231,28 +235,26 @@
                 max-width: 450px; 
                 max-height: 450px; 
                 border-width: 10px; 
-                order: 1; /* Brett immer oben */
+                order: 1;
             }
             
             /* Panels unter das Brett nebeneinander */
             .side-panel {
-                order: 2; /* Unter das Brett */
-                width: 40%; /* Nebeneinander */
+                order: 2;
+                width: 40%;
                 padding: 10px;
                 display: inline-flex;
                 min-height: 80px;
             }
             
-            /* Damit die Panels nebeneinander stehen, brauchen wir einen Wrapper?
-               Nein, wir nutzen flex-wrap im main-stage container */
             #main-stage {
-                flex-direction: row; /* Wieder Zeile für Wrapping */
+                flex-direction: row;
                 flex-wrap: wrap;
                 align-items: flex-start;
             }
-            #board { width: 100%; flex-basis: 100%; max-width: 94vw; height: 94vw;} /* Brett nimmt volle Breite */
+            #board { width: 100%; flex-basis: 100%; max-width: 94vw; height: 94vw;}
 
-            .side-panel { width: 42%; flex-grow: 1; max-width: 200px; } /* Panels teilen sich den Rest */
+            .side-panel { width: 42%; flex-grow: 1; max-width: 200px; }
 
             /* Steine angepasst */
             .stone { width: 8.5vw; height: 8.5vw; max-width: 38px; max-height: 38px; }

@@ -5,6 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Mühle Online</title>
     <style>
+        /* GLOBAL RESET: Wichtig damit Rahmen die Breite nicht sprengen */
+        *, *::before, *::after {
+            box-sizing: border-box;
+        }
+
         :root {
             --bg-color: #2c3e50;
             --board-color: #d3a968;
@@ -53,7 +58,7 @@
             max-width: 900px;
         }
 
-        /* DAS BRETT (Der Fix ist hier integriert) */
+        /* DAS BRETT */
         #board {
             width: 500px;
             height: 500px;
@@ -63,7 +68,7 @@
             border-radius: 5px;
             box-shadow: 0 20px 50px rgba(0,0,0,0.6);
             
-            /* WICHTIG: Verhindert das Quetschen */
+            /* Hält das Brett quadratisch */
             flex-shrink: 0; 
             aspect-ratio: 1 / 1; 
             
@@ -230,10 +235,9 @@
             #status { font-size: 1rem; }
 
             #board { 
-                /* Hier ist der Fix für das Quadrat: */
-                width: 94vw; 
+                /* Hier ist die Korrektur: */
+                width: 90vw; /* 90% statt 94% lässt mehr Luft für den Rand */
                 max-width: 450px; 
-                /* aspect-ratio erzwingt Quadrat */
                 aspect-ratio: 1 / 1; 
                 height: auto; 
                 
@@ -254,7 +258,7 @@
                 flex-wrap: wrap;
                 align-items: flex-start;
             }
-            #board { flex-basis: 100%; } /* Brett nimmt volle Breite */
+            #board { flex-basis: 100%; } 
             .side-panel { width: 42%; flex-grow: 1; max-width: 200px; }
 
             .stone { width: 8.5vw; height: 8.5vw; max-width: 38px; max-height: 38px; }

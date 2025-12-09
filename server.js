@@ -10,8 +10,8 @@ const io = new Server(server);
 app.use(express.static(path.join(__dirname, 'public')));
 
 // --- SPEICHER ---
-let players = {}; // Speichert: { socketId: { color: 'white', name: 'Kai' } }
-let hallOfFame = []; // Speichert die Gewinner: [{name: 'Kai', date: '...'}]
+let players = {}; 
+let hallOfFame = []; 
 let activePlayerCount = 0;
 
 io.on('connection', (socket) => {
@@ -20,14 +20,12 @@ io.on('connection', (socket) => {
     // Hall of Fame sofort an den Neuen senden
     socket.emit('updateHallOfFame', hallOfFame);
 
-    // Wenn voll ist -> Zuschauer
     if (activePlayerCount >= 2) {
         socket.emit('spectator', true);
     }
 
     // --- EREIGNISSE ---
 
-    // Spieler tritt bei (mit Name und Wunsch-Farbe oder automatisch)
     socket.on('joinGame', (playerName) => {
         if (activePlayerCount >= 2) return;
 
@@ -36,10 +34,7 @@ io.on('connection', (socket) => {
         
         players[socket.id] = { color: assignedColor, name: playerName };
 
-        // Dem Spieler sagen, wer er ist
         socket.emit('player-assignment', { color: assignedColor, name: playerName });
-        
-        // Allen sagen, wer alles da ist (Namen updaten)
         io.emit('updatePlayerNames', Object.values(players));
     });
 
@@ -47,9 +42,7 @@ io.on('connection', (socket) => {
         io.emit('updateBoard', data);
     });
 
-    // Ein Spieler meldet einen Sieg (für die Hall of Fame)
     socket.on('reportWin', (winnerColor) => {
-        // Finde den Namen des Gewinners
         let winnerName = "Unbekannt";
         for (let id in players) {
             if (players[id].color === winnerColor) {
@@ -58,10 +51,18 @@ io.on('connection', (socket) => {
             }
         }
 
-        // In die Liste eintragen (Maximal die letzten 10)
-        const entry = { name: winnerName, time: new Date().toLocaleTimeString('de-DE', {hour: '2-digit', minute:'2-digit'}) };
-        hallOfFame.unshift(entry); // Vorne anfügen
-        if (hallOfFame.length > 10) hallOfFame.pop(); // Liste kurz halten
+        // HIER IST DER FIX: Zeitzone explizit auf Berlin setzen
+        const entry = { 
+            name: winnerName, 
+            time: new Date().toLocaleTimeString('de-DE', {
+                hour: '2-digit', 
+                minute:'2-digit', 
+                timeZone: 'Europe/Berlin' 
+            }) 
+        };
+        
+        hallOfFame.unshift(entry); 
+        if (hallOfFame.length > 10) hallOfFame.pop(); 
 
         io.emit('updateHallOfFame', hallOfFame);
     });
@@ -74,7 +75,7 @@ io.on('connection', (socket) => {
         if (players[socket.id]) {
             activePlayerCount--;
             delete players[socket.id];
-            io.emit('updatePlayerNames', Object.values(players)); // Namen entfernen
+            io.emit('updatePlayerNames', Object.values(players)); 
             io.emit('opponentLeft');
         }
     });

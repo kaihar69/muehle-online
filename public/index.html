@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Mühle Online - Hall of Fame</title>
+    <title>Mühle Online</title>
     <style>
         :root {
             --bg-color: #2c3e50;
@@ -19,36 +19,39 @@
             display: flex;
             flex-direction: column;
             align-items: center;
-            min-height: 100vh;
+            justify-content: center; /* Vertikale Zentrierung */
+            min-height: 100vh; /* Fallback */
+            min-height: 100dvh; /* Modern: Dynamische Höhe für Mobile Browser */
             margin: 0;
             color: white;
             user-select: none;
             touch-action: manipulation; 
-            padding-bottom: 50px; /* Platz für Scrollen */
+            padding: 10px; /* Kleiner Rand damit nichts klebt */
+            box-sizing: border-box;
         }
 
-        h1 { margin: 10px 0 5px 0; font-size: 1.5rem; text-align: center; }
+        h1 { margin: 0 0 5px 0; font-size: 1.5rem; text-align: center; text-shadow: 1px 1px 3px rgba(0,0,0,0.5); }
         
         #status { 
-            margin-bottom: 5px; 
+            margin-bottom: 10px; 
             font-size: 1.1rem; 
             font-weight: bold; 
             color: var(--highlight); 
-            height: 1.5em; 
+            height: 1.2em; 
             text-align: center;
-            padding: 0 10px;
         }
 
-        #my-role { margin-bottom: 10px; font-size: 0.9rem; color: #bdc3c7; }
+        #my-role { margin-bottom: 5px; font-size: 0.9rem; color: #bdc3c7; text-align: center;}
 
         /* HAUPTBEREICH */
         #game-container {
             display: flex;
-            align-items: flex-start;
+            align-items: center;
             justify-content: center;
-            gap: 20px;
+            gap: 30px;
             width: 100%;
-            flex-wrap: wrap;
+            max-width: 900px;
+            flex-wrap: wrap; /* Erlaubt Umbruch auf Mobile */
         }
 
         #board {
@@ -58,7 +61,7 @@
             position: relative;
             border: 15px solid var(--border-color);
             border-radius: 5px;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.6);
             flex-shrink: 0; 
         }
 
@@ -69,14 +72,14 @@
         .player-info-container {
             display: flex;
             flex-direction: column; 
-            gap: 20px;
+            gap: 15px;
+            min-width: 150px;
         }
 
         .player-panel {
             background: rgba(0, 0, 0, 0.3);
             padding: 15px;
             border-radius: 10px;
-            width: 140px;
             text-align: center;
             border: 2px solid transparent;
             transition: all 0.3s;
@@ -88,16 +91,17 @@
             background: rgba(255, 255, 255, 0.1);
             box-shadow: 0 0 15px rgba(241, 196, 15, 0.3);
             opacity: 1;
+            transform: scale(1.05);
         }
 
-        .player-name { font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; display: block; overflow: hidden; text-overflow: ellipsis;}
+        .player-name { font-weight: bold; font-size: 1.1rem; margin-bottom: 8px; display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 140px;}
 
         .stone-supply {
             display: flex;
             flex-wrap: wrap;
             justify-content: center;
             gap: 5px;
-            min-height: 60px; 
+            min-height: 50px; 
         }
 
         .supply-stone {
@@ -119,7 +123,7 @@
             cursor: pointer;
             z-index: 10;
         }
-        .spot::after { content: ''; position: absolute; top: -10px; left: -10px; right: -10px; bottom: -10px; }
+        .spot::after { content: ''; position: absolute; top: -12px; left: -12px; right: -12px; bottom: -12px; }
         .spot:hover { background-color: rgba(0,0,0,0.5); }
 
         .stone {
@@ -131,40 +135,41 @@
             z-index: 20;
             box-shadow: 2px 2px 5px rgba(0,0,0,0.5);
             pointer-events: none; 
-            transition: all 0.2s ease;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); /* Schönerer Bounce-Effekt */
         }
         .stone.white { background: radial-gradient(circle at 30% 30%, #fff, #bbb); border: 1px solid #888; }
         .stone.black { background: radial-gradient(circle at 30% 30%, #444, #000); border: 1px solid #000; }
 
-        .stone.selected { box-shadow: 0 0 15px 5px #3498db; transform: translate(-50%, -50%) scale(1.15); }
+        .stone.selected { box-shadow: 0 0 20px 8px #3498db; transform: translate(-50%, -50%) scale(1.15); z-index: 30;}
 
         body.removing .spot { cursor: not-allowed; } 
-        body.game-over #board { opacity: 0.7; pointer-events: none; }
+        body.game-over #board { opacity: 0.7; pointer-events: none; filter: grayscale(50%); }
         body.game-over #status { color: #2ecc71; font-size: 1.5rem; animation: pulse 1s infinite; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
         /* HALL OF FAME */
         #hof-container {
-            margin-top: 30px;
-            width: 90%;
-            max-width: 500px;
+            margin-top: 20px;
+            width: 100%;
+            max-width: 400px;
             background: rgba(0,0,0,0.3);
             border-radius: 10px;
-            padding: 15px;
+            padding: 10px;
             text-align: center;
+            font-size: 0.9rem;
         }
-        #hof-container h3 { color: #f1c40f; margin-top: 0; border-bottom: 1px solid #555; padding-bottom: 10px;}
-        #hof-list { list-style: none; padding: 0; margin: 0; max-height: 200px; overflow-y: auto; }
-        #hof-list li { padding: 8px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; }
-        #hof-list li:last-child { border: none; }
-        .hof-name { font-weight: bold; }
-        .hof-time { font-size: 0.8rem; color: #ccc; }
+        #hof-container h3 { color: #f1c40f; margin: 0 0 10px 0; border-bottom: 1px solid #555; padding-bottom: 5px; font-size: 1rem;}
+        #hof-list { list-style: none; padding: 0; margin: 0; max-height: 120px; overflow-y: auto; }
+        #hof-list li { padding: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; }
+        .hof-name { font-weight: bold; color: white;}
+        .hof-time { font-size: 0.8rem; color: #aaa; }
 
         /* OVERLAYS */
         .overlay {
             position: fixed;
             top: 0; left: 0; width: 100%; height: 100%;
             background: rgba(0,0,0,0.85);
+            backdrop-filter: blur(5px);
             z-index: 1000;
             display: flex;
             flex-direction: column;
@@ -174,43 +179,80 @@
         
         .box {
             background: #34495e;
-            padding: 30px;
+            padding: 25px;
             border-radius: 10px;
             text-align: center;
-            box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
             border: 2px solid #f1c40f;
-            width: 80%;
-            max-width: 400px;
+            width: 85%;
+            max-width: 350px;
         }
 
-        .box h2 { margin-top: 0; color: #f1c40f; }
+        .box h2 { margin-top: 0; color: #f1c40f; font-size: 1.5rem;}
         
         input[type="text"] {
-            padding: 10px;
-            font-size: 1rem;
-            width: 80%;
+            padding: 12px;
+            font-size: 1.1rem;
+            width: 90%;
             margin-bottom: 15px;
             border-radius: 5px;
             border: none;
             text-align: center;
+            background: #ecf0f1;
+            color: #2c3e50;
+            font-weight: bold;
         }
+        input:focus { outline: 2px solid #f1c40f; }
 
-        .btn { padding: 10px 20px; font-size: 1.1rem; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; background: #2ecc71; color: white; margin-top: 10px;}
-        .btn:active { transform: scale(0.95); }
+        .btn { padding: 12px 25px; font-size: 1.1rem; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; background: #2ecc71; color: white; margin-top: 5px; width: 100%;}
+        .btn:active { transform: scale(0.98); }
         .btn-restart { background: #e74c3c; margin-top: 20px;}
 
-        /* MOBILE FIX */
+        /* MOBILE OPTIMIERUNG */
         @media (max-width: 850px) {
-            h1 { font-size: 1.2rem; margin-top: 5px; }
-            #status { font-size: 0.9rem; margin-bottom: 5px; }
-            #game-container { flex-direction: column; gap: 10px; }
-            #board { width: 92vw; height: 92vw; max-width: 500px; max-height: 500px; border-width: 8px; }
+            h1 { font-size: 1.3rem; margin-bottom: 2px; }
+            #status { font-size: 0.95rem; margin-bottom: 5px; }
+            #my-role { font-size: 0.8rem; margin-bottom: 8px; }
+            
+            #game-container { 
+                flex-direction: column; 
+                gap: 15px; 
+            }
+            
+            /* Maximale Breite auf Mobile für Brett */
+            #board { 
+                width: 92vw; 
+                height: 92vw; 
+                max-width: 450px; 
+                max-height: 450px; 
+                border-width: 10px; 
+            }
+            
             line, rect { stroke-width: 3; }
-            .player-info-container { flex-direction: row; width: 100%; justify-content: center; gap: 10px; }
-            .player-panel { width: 45%; padding: 10px; }
-            .player-name { font-size: 1rem; }
-            .stone { width: 8vw; height: 8vw; max-width: 38px; max-height: 38px; }
-            .spot { width: 6vw; height: 6vw; max-width: 30px; max-height: 30px; }
+            
+            .player-info-container { 
+                flex-direction: row; 
+                width: 100%; 
+                justify-content: space-between; 
+                gap: 10px; 
+            }
+            
+            .player-panel { 
+                width: 48%; 
+                padding: 8px; 
+                transform: none !important; /* Kein Zoom auf Mobile */
+            }
+            .player-panel.active { border-width: 2px; }
+            
+            .player-name { font-size: 0.9rem; max-width: 100px;}
+            
+            /* Steingröße angepasst für Touch */
+            .stone { width: 8.5vw; height: 8.5vw; max-width: 38px; max-height: 38px; }
+            .spot { width: 8vw; height: 8vw; max-width: 35px; max-height: 35px; } /* Größere Klickfläche */
+            .spot::after { top: -15px; left: -15px; right: -15px; bottom: -15px; } /* Noch größerer Hitbox */
+
+            /* HoF auf Mobile etwas kleiner */
+            #hof-container { margin-top: 15px; }
         }
     </style>
 </head>
@@ -218,24 +260,24 @@
 
     <div id="connection-warning" class="overlay" style="display:none; z-index: 2000;">
         <div class="box" style="border-color: #e74c3c;">
-            <h2 style="color: #e74c3c;">Verbindung verloren!</h2>
-            <p>Verbindung zum Server unterbrochen.</p>
+            <h2 style="color: #e74c3c;">Keine Verbindung</h2>
+            <p>Server antwortet nicht.</p>
             <button class="btn btn-restart" onclick="location.reload()">Neu laden</button>
         </div>
     </div>
 
     <div id="start-overlay" class="overlay">
         <div class="box">
-            <h2>Mühle: Hall of Fame</h2>
-            <p>Bitte gib deinen Spielernamen ein:</p>
-            <input type="text" id="player-name-input" placeholder="Dein Name (z.B. Chef)" maxlength="12">
-            <button class="btn" onclick="joinGame()">Beitreten</button>
+            <h2>Mühle Online</h2>
+            <p>Dein Spielername:</p>
+            <input type="text" id="player-name-input" placeholder="Name eingeben" maxlength="10">
+            <button class="btn" onclick="joinGame()">Spiel beitreten</button>
         </div>
     </div>
 
     <h1>Mühle Online</h1>
     <div id="my-role">Nicht verbunden</div>
-    <div id="status">Warte auf Spieler...</div>
+    <div id="status">Lade...</div>
     
     <div id="game-container">
         
@@ -253,12 +295,12 @@
 
         <div class="player-info-container">
             <div id="panel-white" class="player-panel">
-                <span class="player-name" id="name-white">Weiß (Wartet)</span>
+                <span class="player-name" id="name-white">Weiß</span>
                 <div id="supply-white" class="stone-supply"></div>
             </div>
 
             <div id="panel-black" class="player-panel">
-                <span class="player-name" id="name-black">Schwarz (Wartet)</span>
+                <span class="player-name" id="name-black">Schwarz</span>
                 <div id="supply-black" class="stone-supply"></div>
             </div>
             
@@ -269,7 +311,7 @@
     <div id="hof-container">
         <h3>🏆 Hall of Fame 🏆</h3>
         <ul id="hof-list">
-            <li><span class="hof-name">- Leer -</span></li>
+            <li><span class="hof-name">...</span></li>
         </ul>
     </div>
 
@@ -328,13 +370,8 @@
         ];
 
         // --- VERBINDUNG ---
-        socket.on('connect', () => {
-            warningOverlay.style.display = 'none';
-        });
-
-        socket.on('disconnect', () => {
-            warningOverlay.style.display = 'flex';
-        });
+        socket.on('connect', () => { warningOverlay.style.display = 'none'; });
+        socket.on('disconnect', () => { warningOverlay.style.display = 'flex'; });
 
         // --- GAME JOIN ---
         function joinGame() {
@@ -347,36 +384,33 @@
 
         socket.on('player-assignment', (data) => {
             myColor = data.color;
-            roleElement.innerText = `Du spielst als: ${data.name} (${data.color === 'white' ? 'WEISS' : 'SCHWARZ'})`;
+            roleElement.innerText = `Du bist: ${data.name} (${data.color === 'white' ? 'WEISS' : 'SCHWARZ'})`;
         });
 
         socket.on('spectator', () => {
             myColor = 'spectator';
-            roleElement.innerText = "Raum voll - Du bist Zuschauer";
+            roleElement.innerText = "Zuschauer Modus";
             startOverlay.style.display = 'none';
         });
 
         socket.on('updatePlayerNames', (players) => {
-            // Reset labels
-            nameWhite.innerText = "Weiß (Wartet)";
-            nameBlack.innerText = "Schwarz (Wartet)";
+            nameWhite.innerText = "Weiß: -";
+            nameBlack.innerText = "Schwarz: -";
             
-            // Fill labels
             players.forEach(p => {
-                if (p.color === 'white') nameWhite.innerText = "Weiß: " + p.name;
-                if (p.color === 'black') nameBlack.innerText = "Schwarz: " + p.name;
+                if (p.color === 'white') nameWhite.innerText = p.name;
+                if (p.color === 'black') nameBlack.innerText = p.name;
             });
 
-            // Wenn 2 Spieler da sind und das Spiel noch wartet, könnte es losgehen
             if (players.length === 2 && gameState === 'waiting') {
-                startGameLocal('white'); // Standardmäßig beginnt Weiß
+                startGameLocal('white'); 
             }
         });
 
         socket.on('updateHallOfFame', (list) => {
             hofList.innerHTML = '';
             if (list.length === 0) {
-                hofList.innerHTML = '<li><span class="hof-name">Noch keine Siege</span></li>';
+                hofList.innerHTML = '<li><span class="hof-name">Noch keine Spiele</span></li>';
                 return;
             }
             list.forEach(entry => {
@@ -398,9 +432,9 @@
         });
 
         socket.on('opponentLeft', () => {
-            alert("Gegner hat das Spiel verlassen.");
+            alert("Gegner ist weg.");
             gameState = 'waiting';
-            statusElement.innerText = "Gegner weg. Warte auf neuen Spieler...";
+            statusElement.innerText = "Warte auf neuen Spieler...";
             restartBtn.style.display = 'none';
         });
 
@@ -471,7 +505,7 @@
             }
 
             if (gameState === 'waiting') {
-                statusElement.innerText = "Warte auf zweiten Spieler...";
+                statusElement.innerText = "Warte auf Gegner...";
                 statusElement.style.color = "#f1c40f";
                 return;
             }
@@ -650,12 +684,10 @@
             statusElement.innerText = "SIEGER: " + message;
             document.body.classList.add('game-over');
             
-            // Nur einer muss den Sieg melden, am besten der Gewinner selbst
             if (myColor === winnerColor) {
                 socket.emit('reportWin', winnerColor);
             }
             
-            // Restart Button zeigen
             restartBtn.style.display = 'block';
         }
 
@@ -665,14 +697,13 @@
 
             currentPlayer = currentPlayer === 'white' ? 'black' : 'white';
             const opponentGerman = currentPlayer === 'white' ? 'Schwarz' : 'Weiß';
-            const currentGerman = currentPlayer === 'white' ? 'Weiß' : 'Schwarz';
 
             updateUI(); 
 
             if (gameState === 'moving') {
                 const stonesCount = countLiveStones(currentPlayer);
                 if (stonesCount < 3) return endGame(`${opponentGerman} (Zu wenig Steine)`, currentPlayer === 'white' ? 'black' : 'white');
-                if (!hasPossibleMoves(currentPlayer)) return endGame(`${opponentGerman} (Gegner blockiert)`, currentPlayer === 'white' ? 'black' : 'white');
+                if (!hasPossibleMoves(currentPlayer)) return endGame(`${opponentGerman} (Blockiert)`, currentPlayer === 'white' ? 'black' : 'white');
             } 
         }
 

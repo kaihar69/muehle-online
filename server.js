@@ -17,9 +17,10 @@ let activePlayerCount = 0;
 io.on('connection', (socket) => {
     console.log('Neuer Spieler: ' + socket.id);
 
-    // Hall of Fame sofort an den Neuen senden
+    // Hall of Fame & Status sofort senden
     socket.emit('updateHallOfFame', hallOfFame);
-
+    
+    // Prüfen ob voll
     if (activePlayerCount >= 2) {
         socket.emit('spectator', true);
     }
@@ -51,7 +52,6 @@ io.on('connection', (socket) => {
             }
         }
 
-        // HIER IST DER FIX: Zeitzone explizit auf Berlin setzen
         const entry = { 
             name: winnerName, 
             time: new Date().toLocaleTimeString('de-DE', {
